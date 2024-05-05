@@ -47,3 +47,18 @@ RUN mkdir -p /var/lib/alternatives && \
     mkdir -p /var/lib && mv /staged-alternatives /var/lib/alternatives && \
     mkdir -p /tmp /var/tmp && \
     chmod -R 1777 /tmp /var/tmp
+
+COPY etc /etc
+
+COPY ublue-firstboot /usr/bin
+
+RUN rpm-ostree install distrobox gnome-tweaks just htop powertop fastfetch btop vim tlp figlet lolcat && \
+    rpm-ostree uninstall power-profiles-daemon
+RUN sed -i 's/#AutomaticUpdatePolicy.*/AutomaticUpdatePolicy=stage/' /etc/rpm-ostreed.conf && \
+    systemctl enable rpm-ostreed-automatic.timer && \
+    systemctl enable flatpak-automatic.timer && \
+    systemctl enable tlp && \
+    #systemctl enable ufw && \
+    #ufw enable && \
+    ostree container commit
+
